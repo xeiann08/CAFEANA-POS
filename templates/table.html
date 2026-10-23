@@ -1,0 +1,53 @@
+{% extends "base.html" %}{% block body %}
+<h2>{{ title }}</h2>
+{% if msg %}
+<p>{{ msg }}</p>
+{% endif %} {% if search %}
+<form>
+  <input
+    name="q"
+    placeholder="Search receipt no., cashier or date"
+    value="{{ request.args.get('q','') }}"
+  />
+</form>
+{% endif %} {% if headers %}
+<div style="overflow-x: auto">
+  <table>
+    <tr>
+      {% for h in headers %}
+      <th>{{ h }}</th>
+      {% endfor %}
+      <th></th>
+    </tr>
+    {% for r in rows %}
+    <tr>
+      {% for c in r[:headers|length] %}
+      <td>{{ c }}</td>
+      {% endfor %}
+      <td>
+        {% for l in r[headers|length:] %}{% set p = l.split('|') %}<a
+          href="{{ p[-1] }}"
+          >{{ p[0] if p|length>1 else 'View' }}</a
+        >
+        {% endfor %}
+      </td>
+    </tr>
+    {% else %}
+    <tr>
+      <td colspan="9">No records.</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endif %} {% if audit %}
+<h3>Audit trail (latest)</h3>
+<table>
+  {% for a in audit %}
+  <tr>
+    <td>{{ a[0] }}</td>
+    <td>{{ a[1] }}</td>
+    <td>{{ a[2] }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endif %}{% endblock %}

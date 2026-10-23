@@ -1,0 +1,35 @@
+{% extends "base.html" %}{% block body %}
+<div class="rc">
+  <h3 style="text-align: center">☕ CAFÉANA</h3>
+  <div>Receipt: CAF-{{ '%06d'|format(o.id) }}</div>
+  <div>Date/Time: {{ o.created_at }}</div>
+  <div>Cashier: {{ o.cashier }}</div>
+  <hr />
+  {% for i in items %}
+  <div class="r">
+    <span>{{ i.qty }} x {{ i.name }}</span
+    ><span>{{ (i.qty*i.price)|peso }}</span>
+  </div>
+  {% endfor %}
+  <hr />
+  <div class="r"><span>Subtotal</span><span>{{ o.subtotal|peso }}</span></div>
+  <div class="r"><span>Discount</span><span>-{{ o.discount|peso }}</span></div>
+  <div class="r"><b>TOTAL</b><b>{{ o.total|peso }}</b></div>
+  <hr />
+  {% for p in pays %}
+  <div class="r">
+    <span>Paid by {{ p.method|upper }}</span><span>{{ p.amount|peso }}</span>
+  </div>
+  {% if p.method=='cash' %}
+  <div class="r">
+    <span>Cash received</span><span>{{ p.cash_received|peso }}</span>
+  </div>
+  <div class="r"><span>Change</span><span>{{ p.change_given|peso }}</span></div>
+  {% endif %}{% endfor %}
+  <p style="text-align: center">Thank you!</p>
+</div>
+<p class="noprint" style="text-align: center">
+  <button onclick="print()">Print</button>
+  <a class="btn alt" href="/pos">New order</a>
+</p>
+{% endblock %}

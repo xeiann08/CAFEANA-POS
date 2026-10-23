@@ -1,0 +1,60 @@
+{% extends "base.html" %}{% block body %}
+<h2>Users</h2>
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Username</th>
+    <th>Role</th>
+    <th>Status</th>
+    <th>Created</th>
+    <th>Actions</th>
+  </tr>
+  {% for r in rows %}
+  <tr>
+    <td>{{ r.full_name }}</td>
+    <td>{{ r.username }}</td>
+    <td>{{ r.role }}</td>
+    <td>{{ r.status }}</td>
+    <td>{{ r.created_at }}</td>
+    <td>
+      {% if r.id!=user.id %} {% for a in (['approve','reject'] if
+      r.status=='pending' else ['deactivate'] if r.status=='active' else
+      ['activate']) %}
+      <form method="post" style="display: inline">
+        <input type="hidden" name="csrf" value="{{ csrf }}" /><input
+          type="hidden"
+          name="id"
+          value="{{ r.id }}"
+        /><button name="action" value="{{ a }}" style="padding: 4px 8px">
+          {{ a }}
+        </button>
+      </form>
+      {% endfor %}{% if r.status!='pending' %}
+      <form
+        method="post"
+        style="display: inline-flex; gap: 4px; margin-top: 4px"
+      >
+        <input type="hidden" name="csrf" value="{{ csrf }}" /><input
+          type="hidden"
+          name="id"
+          value="{{ r.id }}"
+        /><input
+          name="pw"
+          type="password"
+          placeholder="New password"
+          style="width: 150px; margin: 0"
+        /><button
+          name="action"
+          value="reset"
+          class="alt"
+          style="padding: 4px 8px"
+        >
+          Reset
+        </button>
+      </form>
+      {% endif %}{% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}

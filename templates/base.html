@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Caféana POS</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static',filename='style.css') }}"
+    />
+  </head>
+  <body>
+    {% if user %}
+    <nav>
+      <b>☕ Caféana</b> {% if user.role=='admin' %}<a href="/admin/dashboard"
+        >Dashboard</a
+      ><a href="/admin/sales">Sales</a><a href="/admin/reports">Reports</a
+      ><a href="/admin/expenses">Expenses</a><a href="/admin/shifts">Shifts</a
+      ><a href="/admin/products">Products</a><a href="/admin/users">Users</a>{%
+      endif %} <a href="/pos">POS</a><a href="/orders">Orders</a
+      ><a href="/shift">Shift</a><a href="/profile">{{ user.full_name }}</a>
+      <form method="post" action="/logout">
+        <input type="hidden" name="csrf" value="{{ csrf }}" /><button
+          class="alt"
+        >
+          Logout
+        </button>
+      </form>
+    </nav>
+    {% endif %}
+    <main>
+      {% for m in get_flashed_messages() %}
+      <div class="flash">{{ m }}</div>
+      {% endfor %}{% block body %}{% endblock %}
+    </main>
+    <script>
+      const EYE =
+          '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>',
+        OFF =
+          '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.9 17.9A10.9 10.9 0 0 1 12 20C5 20 1 12 1 12a18.5 18.5 0 0 1 5.1-5.9M9.9 4.2A9 9 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.2 3.2M1 1l22 22"/></svg>';
+      document.querySelectorAll("input[type=password]").forEach((i) => {
+        const w = document.createElement("div");
+        w.className = "pw";
+        i.parentNode.insertBefore(w, i);
+        w.appendChild(i);
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "eye";
+        b.setAttribute("aria-label", "Show or hide password");
+        b.innerHTML = EYE;
+        b.onclick = () => {
+          const h = i.type == "password";
+          i.type = h ? "text" : "password";
+          b.innerHTML = h ? OFF : EYE;
+        };
+        w.appendChild(b);
+      });
+    </script>
+  </body>
+</html>

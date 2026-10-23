@@ -1,0 +1,47 @@
+{% extends "base.html" %}{% block body %}
+<form method="post" class="box narrow auth">
+  <input type="hidden" name="csrf" value="{{ csrf }}" />
+  <div class="brand">
+    <div class="logo">☕</div>
+    <h2>Caféana</h2>
+    <p>
+      {{ {'login':'Welcome back','register':'Create a staff
+      account','profile':'Change your password'}[mode] }}
+    </p>
+  </div>
+  {% if mode=='login' %}<label>Username</label
+  ><input name="username" required autofocus /><label>Password</label
+  ><input name="password" type="password" required />
+  <button class="full">Log in</button>
+  <p class="sub">New staff? <a href="/register">Create an account</a></p>
+  {% elif mode=='register' %}<label>Full name</label
+  ><input name="full_name" required autofocus /><label>Username</label
+  ><input
+    name="username"
+    placeholder="Letters, numbers, underscore"
+    required
+  /><label>Password</label
+  ><input
+    name="password"
+    type="password"
+    placeholder="At least 8 characters"
+    required
+  />
+  <button class="full">Register</button>
+  <div class="hint">
+    Your account must be approved by an admin before you can log in.
+  </div>
+  <p class="sub">Already registered? <a href="/login">Log in</a></p>
+  {% else %}<label>Current password</label
+  ><input name="current" type="password" required /><label>New password</label
+  ><input
+    name="new"
+    type="password"
+    placeholder="At least 8 characters"
+    required
+  /><label>Confirm new password</label
+  ><input name="confirm" type="password" required /><button class="full">
+    Update password</button
+  >{% endif %}
+</form>
+{% endblock %}

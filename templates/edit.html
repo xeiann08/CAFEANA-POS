@@ -1,0 +1,11 @@
+{% extends "base.html" %}{% block body %}<form method="post" class="box narrow auth" style="max-width:520px"><input type="hidden" name="csrf" value="{{ csrf }}">
+{% if o %}<h2>Edit sale CAF-{{ '%06d'|format(o.id) }}</h2><p class="hint">Recorded on {{ o.created_at }}. Changes are saved in the audit trail.</p>
+{% for i in items %}<label>{{ i.name }} ({{ i.price|peso }}) &mdash; quantity (0 removes it)</label><input type="number" name="q{{ i.id }}" min="0" max="99" value="{{ i.qty }}" required>{% endfor %}
+<label>Discount (₱)</label><input name="discount" type="number" step="0.01" min="0" value="{{ '%.2f'|format(o.discount/100) }}">
+<label>Payment method</label><select name="method"><option value="cash" {{ 'selected' if cur=='cash' }}>Cash</option><option value="gcash" {{ 'selected' if cur=='gcash' }}>GCash</option><option value="mixed" {{ 'selected' if cur=='mixed' }}>Mixed (Cash + GCash)</option></select>
+<label>GCash part (₱) &mdash; mixed payments only</label><input name="gcash_amount" type="number" step="0.01" min="0" value="{{ '%.2f'|format(gc/100) if cur=='mixed' else '' }}">
+<label>Cash received (₱) &mdash; cash or mixed payments</label><input name="cash_received" type="number" step="0.01" min="0" value="{{ '%.2f'|format(cashrec/100) if cashrec is not none else '' }}">
+<button class="full">Save changes</button><p class="sub"><a href="/admin/sales">Cancel</a></p>
+{% else %}<h2>Edit {{ kind }}</h2><p class="hint">Changes are saved in the audit trail.</p>
+<label>Description</label><input name="note" value="{{ note or '' }}" {{ 'required' if kind=='expense' }}><label>Amount (₱)</label><input name="amount" type="number" step="0.01" min="0.01" value="{{ '%.2f'|format(c.amount/100) }}" required>
+<button class="full">Save changes</button><p class="sub"><a href="/admin/expenses">Cancel</a></p>{% endif %}</form>{% endblock %}

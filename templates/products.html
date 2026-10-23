@@ -1,0 +1,100 @@
+{% extends "base.html" %}{% block body %}
+<h2>Products</h2>
+<form method="post" class="box" style="margin-bottom: 12px">
+  <input type="hidden" name="csrf" value="{{ csrf }}" />
+  <input name="name" placeholder="Name" required /><input
+    name="price"
+    type="number"
+    step="0.01"
+    min="0"
+    placeholder="Price (₱)"
+    required
+  /><select name="category">
+    {% for c in cats %}
+    <option value="{{ c.id }}">{{ c.name }}</option>
+    {% endfor %}
+  </select>
+  <input
+    name="image_url"
+    placeholder="Image URL (https://… or /static/…)"
+  /><button>Add product</button>
+</form>
+<input
+  id="s"
+  placeholder="🔍 Search products…"
+  oninput="f()"
+  autocomplete="off"
+  style="margin-bottom: 8px"
+/>
+<table id="pt">
+  <tr>
+    <th>Photo</th>
+    <th>Name</th>
+    <th>Category</th>
+    <th>Price</th>
+    <th>Status</th>
+    <th></th>
+  </tr>
+  {% for r in rows %}
+  <tr>
+    <td>
+      {% if r.image_url %}<img
+        src="{{ r.image_url }}"
+        alt=""
+        style="
+          width: 56px;
+          height: 56px;
+          object-fit: cover;
+          border-radius: 8px;
+          display: block;
+          margin-bottom: 4px;
+        "
+      />{% endif %}
+      <form
+        method="post"
+        action="/admin/products/{{ r.id }}/image"
+        enctype="multipart/form-data"
+        style="display: flex; gap: 4px"
+      >
+        <input type="hidden" name="csrf" value="{{ csrf }}" /><input
+          type="file"
+          name="photo"
+          accept="image/png,image/jpeg,image/webp"
+          required
+          style="width: 190px; margin: 0; padding: 4px"
+        /><button class="alt" style="padding: 4px 8px">Upload</button>
+      </form>
+    </td>
+    <td>{{ r.name }}</td>
+    <td>{{ r.cat }}</td>
+    <td>{{ r.price|peso }}</td>
+    <td>{{ 'Active' if r.active else 'Hidden' }}</td>
+    <td>
+      <form method="post">
+        <input type="hidden" name="csrf" value="{{ csrf }}" /><button
+          name="toggle"
+          value="{{ r.id }}"
+          class="alt"
+          style="padding: 4px 8px"
+        >
+          Toggle
+        </button>
+      </form>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+<script>
+  function f() {
+    const v = document.getElementById("s").value.toLowerCase();
+    document
+      .querySelectorAll("#pt tr:not(:first-child)")
+      .forEach(
+        (r) =>
+          (r.style.display = r.innerText.toLowerCase().includes(v)
+            ? ""
+            : "none"),
+      );
+  }
+</script>
+{% endblock %}
