@@ -102,7 +102,11 @@ def headers(r):
     return r
 @app.context_processor
 def ctx():
-    session.setdefault("csrf", secrets.token_hex(16)); return dict(csrf=session["csrf"], user=getattr(g, "user", None))
+    session.setdefault("csrf", secrets.token_hex(16)); u = getattr(g, "user", None); sh = None
+    if u:
+        try: sh = q1("SELECT 1 FROM shifts WHERE user_id=? AND status='open'", (u["id"],))
+        except sqlite3.Error: pass
+    return dict(csrf=session["csrf"], user=u, my_shift=sh)
 def login_required(f):
     @wraps(f)
     def w(*a, **k):

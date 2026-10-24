@@ -1,21 +1,33 @@
-{% extends "base.html" %}{% block body %}<div class="pos"><section><input id="q" placeholder="🔍 Search products…" oninput="grid()" autocomplete="off"><div class="cats" id="cats"></div><div id="grid"></div></section>
-<aside class="box"><h3>Cart</h3><div id="cart"></div><p>Subtotal: <b id="sub">₱0.00</b></p><label>Discount (₱)</label><input id="disc" type="number" min="0" step="0.01" value="0" oninput="draw()"><h3>Total: <span id="tot">₱0.00</span></h3>
+{% extends "base.html" %}{% block body %}<div class="cartbar" onclick="document.getElementById('cartpanel').scrollIntoView({behavior:'smooth'})"><span id="cb">0 items</span><b id="cbt">₱0.00</b></div><div class="pos"><section><input id="q" placeholder="🔍 Search products…" oninput="grid()" autocomplete="off"><div class="cats" id="cats"></div><div id="grid"></div></section>
+<aside class="box" id="cartpanel"><h3>Cart</h3><div id="cart"></div><p>Subtotal: <b id="sub">₱0.00</b></p><label>Discount (₱)</label><input id="disc" type="number" min="0" step="0.01" value="0" oninput="draw()"><h3>Total: <span id="tot">₱0.00</span></h3>
 <button onclick="openPay()" style="width:100%">Checkout</button><p><button class="alt" onclick="ex.showModal()">Expense</button> <button class="alt" onclick="rm.showModal()">Remittance</button></p></aside></div>
 <dialog id="pay"><h3>Confirm checkout</h3><p>Total: <b id="ptot"></b></p><select id="method" onchange="draw()"><option value="cash">Cash</option><option value="gcash">GCash</option><option value="mixed">Mixed (Cash + GCash)</option></select>
 <div id="gbox" style="display:none"><input id="gca" type="number" step="0.01" min="0" placeholder="GCash amount" oninput="draw()"><p>Cash to collect: <b id="cpart">₱0.00</b></p></div>
-<div id="cashbox"><input id="rec" type="number" step="0.01" min="0" placeholder="Cash received" oninput="draw()"><p>Change: <b id="chg">₱0.00</b></p></div><p id="perr" style="color:#a33"></p><button onclick="pay()">Confirm payment</button> <button class="alt" onclick="document.getElementById('pay').close()">Cancel</button></dialog>
+<div id="cashbox"><input id="rec" type="number" step="0.01" min="0" placeholder="Cash received" oninput="draw()"><p>Change: <b id="chg">₱0.00</b></p></div><p id="perr" style="color:#a33"></p><button id="payb" onclick="pay()">Confirm payment</button> <button class="alt" onclick="document.getElementById('pay').close()">Cancel</button></dialog>
 {% for k,t in [('ex','expense'),('rm','remittance')] %}<dialog id="{{ k }}"><form method="post" action="/cash/{{ t }}" onsubmit="return confirm('Record this {{ t }}?')"><input type="hidden" name="csrf" value="{{ csrf }}"><h3>Record {{ t }}</h3>
-<input name="note" placeholder="Description" {{ 'required' if t=='expense' }}><input name="amount" type="number" step="0.01" min="0.01" placeholder="Amount (₱)" required><button>Save</button> <button type="button" class="alt" onclick="this.closest('dialog').close()">Cancel</button></form></dialog>{% endfor %}
+<input name="note" placeholder="Description" data-kind="{{ t }}"><input name="amount" type="number" step="0.01" min="0.01" placeholder="Amount (₱)" required><button>Save</button> <button type="button" class="alt" onclick="this.closest('dialog').close()">Cancel</button></form></dialog>{% endfor %}
 <script>const P={{ prods|tojson }},C={{ cats|tojson }},$=i=>document.getElementById(i),E=s=>String(s).replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';'),pe=c=>'₱'+(c/100).toLocaleString('en-PH',{minimumFractionDigits:2});
-let cart={},cat='All',tok=crypto.randomUUID();
-function cats(){$('cats').innerHTML=['All',...C].map(c=>`<button class="${c==cat?'on':''}" onclick="cat='${c}';cats();grid()">${E(c)}</button>`).join('')}
+const uid=()=>Array.from(crypto.getRandomValues(new Uint8Array(16)),b=>b.toString(16).padStart(2,'0')).join('');
+let cart={},cat='All',tok=uid();
+try{const sv=JSON.parse(sessionStorage.getItem('cafeana')||'{}');if(sv.cart){Object.entries(sv.cart).forEach(([i,q])=>{if(P.find(p=>p.id==i)&&Number.isInteger(q)&&q>0&&q<100)cart[i]=q});tok=sv.tok||tok}}catch(e){}
+const cartbar=()=>{const n=Object.values(cart).reduce((a,b)=>a+b,0);$('cb').textContent=n+' item'+(n==1?'':'s');$('cbt').textContent=pe(sub()-dc())};
+const save=()=>{try{sessionStorage.setItem('cafeana',JSON.stringify({cart,tok}))}catch(e){}};
+const setCat=i=>{cat=['All',...C][i];cats();grid()};
+function cats(){$('cats').innerHTML=['All',...C].map((c,i)=>`<button class="${c==cat?'on':''}" onclick="setCat(${i})">${E(c)}</button>`).join('')||'<p class="empty">No products match your search.</p>'}
 function grid(){$('grid').innerHTML=P.filter(p=>(cat=='All'||p.cat==cat)&&p.name.toLowerCase().includes($('q').value.trim().toLowerCase())).map(p=>`<button class="card" onclick="add(${p.id})">${p.img?`<img src="${E(p.img)}" alt="">`:'<div class="ph">📷</div>'}<b>${E(p.name)}</b><span>${pe(p.price)}</span><small>${E(p.cat)}</small></button>`).join('')}
-function add(i,d=1){cart[i]=(cart[i]||0)+d;if(cart[i]<=0)delete cart[i];if(cart[i]>99)cart[i]=99;draw()}
+function add(i,d=1){tok=uid();cart[i]=(cart[i]||0)+d;if(cart[i]<=0)delete cart[i];if(cart[i]>99)cart[i]=99;draw()}
 const sub=()=>Object.entries(cart).reduce((s,[i,q])=>s+P.find(p=>p.id==i).price*q,0),dc=()=>Math.min(sub(),Math.round((parseFloat($('disc').value)||0)*100));
 function draw(){$('cart').innerHTML=Object.entries(cart).map(([i,q])=>{const p=P.find(p=>p.id==i);return `<div class="line"><span>${E(p.name)}</span><span><button onclick="add(${i},-1)">−</button> ${q} <button onclick="add(${i},1)">+</button> <button class="x" onclick="add(${i},-999)">✕</button></span><b>${pe(p.price*q)}</b></div>`}).join('')||'<p>Tap a product to add it.</p>';
 $('sub').textContent=pe(sub());$('tot').textContent=$('ptot').textContent=pe(sub()-dc());const m=$('method').value,tot=sub()-dc(),g=m=='mixed'?Math.round((parseFloat($('gca').value)||0)*100):0,part=Math.max(0,m=='gcash'?0:tot-g);
-$('cashbox').style.display=m=='gcash'?'none':'';$('gbox').style.display=m=='mixed'?'':'none';$('cpart').textContent=pe(part);$('chg').textContent=pe(Math.max(0,Math.round((parseFloat($('rec').value)||0)*100)-part))}
+$('cashbox').style.display=m=='gcash'?'none':'';$('gbox').style.display=m=='mixed'?'':'none';$('cpart').textContent=pe(part);$('chg').textContent=pe(Math.max(0,Math.round((parseFloat($('rec').value)||0)*100)-part));cartbar();save()}
 function openPay(){if(!sub())return alert('Cart is empty');$('perr').textContent='';draw();$('pay').showModal()}
-async function pay(){const r=await fetch('/api/checkout',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF':'{{ csrf }}'},body:JSON.stringify({token:tok,items:Object.entries(cart).map(([id,qty])=>({id:+id,qty})),discount:$('disc').value,method:$('method').value,cash_received:$('rec').value,gcash_amount:$('gca').value})});
-const d=await r.json();if(r.ok)location='/receipt/'+d.id;else $('perr').textContent=d.error||'Error'}
+let busy=false;
+async function pay(){if(busy)return;busy=true;const b=$('payb');b.disabled=true;$('perr').textContent='';
+try{const r=await fetch('/api/checkout',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF':'{{ csrf }}'},body:JSON.stringify({token:tok,items:Object.entries(cart).map(([id,qty])=>({id:+id,qty})),discount:$('disc').value,method:$('method').value,cash_received:$('rec').value,gcash_amount:$('gca').value})});
+let d={};try{d=await r.json()}catch(e){}
+if(r.ok&&d.id){try{sessionStorage.removeItem('cafeana')}catch(e){}location='/receipt/'+d.id;return}
+$('perr').textContent=d.error||'Could not complete the sale. Refresh the page and try again.'}
+catch(e){$('perr').textContent='No connection. The sale may not have been saved: check Orders first. Pressing Confirm again is safe (no double charge).'}
+busy=false;b.disabled=false}
+document.querySelectorAll('input[name=note]').forEach(i=>{i.required=i.dataset.kind==='expense'});
 cats();grid();draw();</script>{% endblock %}

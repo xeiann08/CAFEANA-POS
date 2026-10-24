@@ -1,36 +1,15 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <meta name="theme-color" content="#0c2f3a" />
-    <title>CAFEANA POS SYSTEM</title>
-    <meta
-      name="description"
-      content="Caféana point of sale: sales, shifts and cash drawer tracking."
-    />
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static',filename='style.css') }}"
-    />
-  </head>
-  <body class="lp-body">
-    <div class="lp">
-      <header class="lp-nav"><span class="lp-brand">☕ Caféana</span></header>
-      <main class="lp-hero">
-        <div class="lp-in">
-          <h1>CAFEANA<br />POS SYSTEM</h1>
-          <p>Fast sales, clear shifts, and a cash drawer that adds up.</p>
-          <div class="lp-cta">
-            <a class="btn lp-login" href="/login">Login</a
-            ><a class="btn lp-reg" href="/register">Register</a>
-          </div>
-          <small
-            >New staff accounts need admin approval before they can log
-            in.</small
-          >
-        </div>
-      </main>
-    </div>
-  </body>
-</html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0c2f3a">
+<title>CAFEANA POS SYSTEM</title><meta name="description" content="Caféana point of sale: sales, shifts and cash drawer tracking."><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E☕%3C/text%3E%3C/svg%3E"><link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}"></head>
+<body class="lp-body"><div class="lp">
+<main class="lp-hero"><div class="lp-in"><h1>CAFEANA<br>POS SYSTEM</h1><p>Fast sales, clear shifts, and a cash drawer that adds up.</p>
+<div class="lp-cta"><a class="btn lp-login" href="/login">Login</a><a class="btn lp-reg" href="/register">Register</a></div><small>New staff accounts need admin approval before they can log in.</small></div></main>
+<div class="lp-bar" role="navigation" aria-label="Main"><div class="lp-bar-in">
+<a class="lp-bar-brand" href="/">☕ Caféana</a>
+<button class="lp-burger" type="button" aria-expanded="false" aria-controls="lpmenu" aria-label="Open menu"><span></span><span></span><span></span></button>
+<ul id="lpmenu" class="lp-menu"><li><a href="/" class="on" aria-current="page">Home</a></li><li><a href="/login">Login</a></li><li><a href="/register">Register</a></li></ul>
+</div></div></div>
+<script>(()=>{const b=document.querySelector('.lp-burger'),m=document.getElementById('lpmenu');
+const set=o=>{m.classList.toggle('open',o);b.setAttribute('aria-expanded',o);b.setAttribute('aria-label',o?'Close menu':'Open menu')};
+b.addEventListener('click',e=>{e.stopPropagation();set(!m.classList.contains('open'))});
+document.addEventListener('click',e=>{if(!m.contains(e.target))set(false)});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')set(false)});})();</script></body></html>

@@ -1,3 +1,4 @@
 {
-  "python.terminal.useEnvFile": true
+  "[html]": { "editor.formatOnSave": false, "editor.formatOnPaste": false },
+  "[jinja-html]": { "editor.formatOnSave": false, "editor.formatOnPaste": false }
 }
