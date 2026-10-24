@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#0c2f3a" />
+    <title>CAFEANA POS SYSTEM</title>
+    <meta
+      name="description"
+      content="Caféana point of sale: sales, shifts and cash drawer tracking."
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static',filename='style.css') }}"
+    />
+  </head>
+  <body class="lp-body">
+    <div class="lp">
+      <header class="lp-nav"><span class="lp-brand">☕ Caféana</span></header>
+      <main class="lp-hero">
+        <div class="lp-in">
+          <h1>CAFEANA<br />POS SYSTEM</h1>
+          <p>Fast sales, clear shifts, and a cash drawer that adds up.</p>
+          <div class="lp-cta">
+            <a class="btn lp-login" href="/login">Login</a
+            ><a class="btn lp-reg" href="/register">Register</a>
+          </div>
+          <small
+            >New staff accounts need admin approval before they can log
+            in.</small
+          >
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

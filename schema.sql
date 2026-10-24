@@ -19,4 +19,6 @@ CREATE TABLE IF NOT EXISTS remittances(id INTEGER PRIMARY KEY,shift_id INTEGER N
 CREATE TABLE IF NOT EXISTS audit_logs(id INTEGER PRIMARY KEY,user_id INTEGER REFERENCES users(id),action TEXT NOT NULL,detail TEXT,created_at TEXT NOT NULL DEFAULT(datetime('now','localtime')));
 CREATE INDEX IF NOT EXISTS ix_orders_created ON orders(created_at);CREATE INDEX IF NOT EXISTS ix_orders_shift ON orders(shift_id);
 CREATE INDEX IF NOT EXISTS ix_pay_order ON payments(order_id);CREATE INDEX IF NOT EXISTS ix_items_order ON order_items(order_id);
+CREATE TABLE IF NOT EXISTS attempts(id INTEGER PRIMARY KEY,kind TEXT NOT NULL,key TEXT NOT NULL,at TEXT NOT NULL DEFAULT(datetime('now','localtime')));
+CREATE INDEX IF NOT EXISTS ix_attempts_lookup ON attempts(kind,key,at);
 CREATE INDEX IF NOT EXISTS ix_shift_user ON shifts(user_id,status);CREATE INDEX IF NOT EXISTS ix_audit_created ON audit_logs(created_at);

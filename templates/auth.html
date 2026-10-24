@@ -1,47 +1,130 @@
 {% extends "base.html" %}{% block body %}
-<form method="post" class="box narrow auth">
+<form
+  method="post"
+  class="box narrow auth"
+  {% if mode == "register" %}
+  id="regform"
+  novalidate
+  {% endif %}
+>
   <input type="hidden" name="csrf" value="{{ csrf }}" />
   <div class="brand">
     <div class="logo">☕</div>
     <h2>Caféana</h2>
-    <p>
-      {{ {'login':'Welcome back','register':'Create a staff
-      account','profile':'Change your password'}[mode] }}
-    </p>
+    <p>{{ {'login':'Welcome back','register':'Create a staff account','profile':'Change your password'}[mode] }}</p>
   </div>
-  {% if mode=='login' %}<label>Username</label
-  ><input name="username" required autofocus /><label>Password</label
-  ><input name="password" type="password" required />
+
+  {% if mode=='login' %}
+  <label>Username</label>
+  <input name="username" required autofocus autocomplete="username" />
+  <label>Password</label>
+  <input name="password" type="password" required autocomplete="current-password" />
   <button class="full">Log in</button>
   <p class="sub">New staff? <a href="/register">Create an account</a></p>
-  {% elif mode=='register' %}<label>Full name</label
-  ><input name="full_name" required autofocus /><label>Username</label
-  ><input
-    name="username"
-    placeholder="Letters, numbers, underscore"
-    required
-  /><label>Password</label
-  ><input
-    name="password"
-    type="password"
-    placeholder="At least 8 characters"
-    required
-  />
-  <button class="full">Register</button>
-  <div class="hint">
-    Your account must be approved by an admin before you can log in.
+  <p class="sub"><a href="/">Back to home</a></p>
+
+  {% elif mode=='register' %}
+  <div class="row2">
+    <div>
+      <label>Name</label>
+      <input name="first_name" maxlength="40" autocomplete="given-name" autofocus />
+    </div>
+    <div>
+      <label>Last name</label>
+      <input name="last_name" maxlength="40" autocomplete="family-name" />
+    </div>
   </div>
+  <label>Username</label>
+  <input name="username" maxlength="30" placeholder="Letters and numbers only" autocomplete="username" autocapitalize="none" />
+  <label>Password</label>
+  <input name="password" type="password" maxlength="128" placeholder="8 to 128 characters" autocomplete="new-password" />
+  <button class="full">Register</button>
+  <div class="hint">Your account must be approved by an admin before you can log in.</div>
   <p class="sub">Already registered? <a href="/login">Log in</a></p>
-  {% else %}<label>Current password</label
-  ><input name="current" type="password" required /><label>New password</label
-  ><input
-    name="new"
-    type="password"
-    placeholder="At least 8 characters"
-    required
-  /><label>Confirm new password</label
-  ><input name="confirm" type="password" required /><button class="full">
-    Update password</button
-  >{% endif %}
+  <p class="sub"><a href="/">Back to home</a></p>
+
+  {% else %}
+  <label>Current password</label>
+  <input name="current" type="password" required />
+  <label>New password</label>
+  <input name="new" type="password" placeholder="At least 8 characters" required />
+  <label>Confirm new password</label>
+  <input name="confirm" type="password" required />
+  <button class="full">Update password</button>
+  {% endif %}
 </form>
-{% endblock %}
+
+{% if mode=='register' %}
+<div class="mo" id="mo" aria-hidden="true">
+  <div class="mb" role="dialog" aria-modal="true" aria-labelledby="mt">
+    <div class="ic" aria-hidden="true"></div>
+    <h3 id="mt"></h3>
+    <ul></ul>
+    <div class="acts">
+      <a class="btn go" href="/login" hidden>Go to login</a>
+      <button type="button" class="alt cl">Close</button>
+    </div>
+  </div>
+</div>
+<script>
+  (() => {
+    const f = document.getElementById("regform"),
+      mo = document.getElementById("mo"),
+      q = (s) => mo.querySelector(s);
+    let from = null;
+    function show(r) {
+      mo.className = "mo " + (r.ok ? "ok" : "bad");
+      q(".ic").textContent = r.ok ? "✓" : "✕";
+      q("h3").textContent = r.title;
+      const ul = q("ul");
+      ul.innerHTML = "";
+      (r.messages || []).forEach((m) => {
+        const li = document.createElement("li");
+        li.textContent = m;
+        ul.appendChild(li);
+      });
+      q(".go").hidden = !r.ok;
+      mo.setAttribute("aria-hidden", "false");
+      from = document.activeElement;
+      requestAnimationFrame(() => {
+        mo.classList.add("open");
+        (r.ok ? q(".go") : q(".cl")).focus();
+      });
+    }
+    function hide() {
+      mo.classList.remove("open");
+      mo.setAttribute("aria-hidden", "true");
+      if (from) from.focus();
+    }
+    mo.addEventListener("click", (e) => {
+      if (e.target === mo || e.target.classList.contains("cl")) hide();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && mo.classList.contains("open")) hide();
+    });
+    f.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const b = f.querySelector(".full");
+      b.disabled = true;
+      try {
+        const r = await fetch("/register", {
+          method: "POST",
+          body: new FormData(f),
+          headers: { "X-Requested-With": "fetch" },
+        });
+        const d = await r.json();
+        show(d);
+        if (d.ok) f.reset();
+        else f.elements.password.value = "";
+      } catch (x) {
+        show({
+          ok: false,
+          title: "Registration failed",
+          messages: ["No connection. Check your internet and try again."],
+        });
+      }
+      b.disabled = false;
+    });
+  })();
+</script>
+{% endif %}{% endblock %}
